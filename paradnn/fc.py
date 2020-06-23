@@ -123,12 +123,12 @@ def model_fn(features, labels, mode, params):
 
   if FLAGS.data_type == 'float32':
     for i in range(layer):
-      net = tf.layers.dense(
+      net = tf.keras.layers.Dense(
         inputs=net,
         units=node,
         name='fc_' + str(i),
         activation=tf.nn.relu)
-    net = tf.layers.dense(
+    net = tf.keras.layers.Dense(
       inputs=net,
       units=output_size,
       name='fc_' + str(layer),
@@ -137,12 +137,12 @@ def model_fn(features, labels, mode, params):
   else:
     with tf.variable_scope('cg', custom_getter=get_custom_getter()):
       for i in range(layer):
-        net = tf.layers.dense(
+        net = tf.keras.layers.Dense(
           inputs=net,
           units=node,
           name='fc_' + str(i),
           activation=tf.nn.relu)
-      net = tf.layers.dense(
+      net = tf.keras.layers.Dense(
         inputs=net,
         units=output_size,
         name='fc_' + str(layer),
