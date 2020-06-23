@@ -183,12 +183,12 @@ def model_fn(features, labels, mode, params):
 
   train_op = optimizer.minimize(loss, global_step=tf.compat.v1.train.get_global_step())
 
-  param_stats = tf.profiler.profile(
-    tf.get_default_graph(),
+  param_stats = tf.compat.v1.profiler.profile(
+    tf.compat.v1.get_default_graph(),
     options=ProfileOptionBuilder.trainable_variables_parameter())
-  fl_stats = tf.profiler.profile(
-    tf.get_default_graph(),
-    options=tf.profiler.ProfileOptionBuilder.float_operation())
+  fl_stats = tf.compat.v1.profiler.profile(
+    tf.compat.v1.get_default_graph(),
+    options=tf.compat.v1.profiler.ProfileOptionBuilder.float_operation())
 
   if mode == tf.estimator.ModeKeys.EVAL:
     def metric_fn(labels, logits):
