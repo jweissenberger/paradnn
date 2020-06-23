@@ -257,7 +257,7 @@ def main(unused_argv):
       tpu_config=tf.compat.v1.estimator.tpu.TPUConfig(iterations_per_loop=FLAGS.iterations, num_shards=FLAGS.num_shards),
   )
 
-  estimator = tpu_estimator.TPUEstimator(
+  estimator = tf.compat.v1.estimator.tpu.TPUEstimator(
       model_fn=model_fn,
       params={"output_size": output_size, "input_size": input_size},
       use_tpu=FLAGS.use_tpu,
