@@ -177,7 +177,7 @@ def model_fn(features, labels, mode, params):
           learning_rate,
           RMSPROP_DECAY,
           momentum=RMSPROP_MOMENTUM,
-          epsilon=RMSPROP_EPSILON)ß
+          epsilon=RMSPROP_EPSILON)
   if FLAGS.use_tpu:
     optimizer = tf.compat.v1.tpu.CrossShardOptimizer(optimizer)
 
