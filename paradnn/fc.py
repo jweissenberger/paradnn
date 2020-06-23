@@ -159,7 +159,7 @@ def model_fn(features, labels, mode, params):
           )
 
   onehot_labels=tf.one_hot(labels, output_size)
-  loss = tf.losses.softmax_cross_entropy(
+  loss = tf.compat.v1.losses.softmax_cross_entropy(
       onehot_labels=onehot_labels, logits=net)
 
   learning_rate = 0.1
