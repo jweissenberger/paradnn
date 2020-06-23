@@ -5,9 +5,6 @@ Fully-connected models.
 '''
 
 import tensorflow as tf
-from tensorflow.compat.v1.estimator.tpu import TPUConfig
-from tensorflow.compat.v1.estimator.tpu import TPUEstimator
-from tensorflow.compat.v1.estimator.tpu import TPUOptimizer
 import time
 import numpy as np
 import os
@@ -182,7 +179,7 @@ def model_fn(features, labels, mode, params):
           momentum=RMSPROP_MOMENTUM,
           epsilon=RMSPROP_EPSILON)
   if FLAGS.use_tpu:
-    optimizer = tpu_optimizer.CrossShardOptimizer(optimizer)
+    optimizer = tf.compat.v1.tpu.CrossShardOptimizer(optimizer)
 
   train_op = optimizer.minimize(loss, global_step=tf.train.get_global_step())
 
@@ -202,14 +199,14 @@ def model_fn(features, labels, mode, params):
       }
     eval_metrics = (metric_fn, [labels, net])
 
-    return tpu_estimator.TPUEstimatorSpec(
+    return tf.compat.v1.estimator.tpu.TPUEstimatorSpec(
       mode=mode,
       loss=loss,
       train_op=train_op,
       host_call=None,
       eval_metrics=eval_metrics)
 
-  return tpu_estimator.TPUEstimatorSpec(
+  return tf.compat.v1.estimator.tpu.TPUEstimatorSpec(
       mode=mode,
       loss=loss,
       train_op=train_op)
