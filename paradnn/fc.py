@@ -165,19 +165,19 @@ def model_fn(features, labels, mode, params):
   learning_rate = 0.1
   if opt == 'sgd':
       tf.compat.v1.logging.info('Using SGD optimizer')
-      optimizer = tf.train.GradientDescentOptimizer(
+      optimizer = tf.compat.v1.train.GradientDescentOptimizer(
           learning_rate=learning_rate)
   elif opt == 'momentum':
       tf.compat.v1.logging.info('Using Momentum optimizer')
-      optimizer = tf.train.MomentumOptimizer(
+      optimizer = tf.compat.v1.train.MomentumOptimizer(
           learning_rate=learning_rate, momentum=0.9)
   elif opt == 'rms':
       tf.compat.v1.logging.info('Using RMS optimizer')
-      optimizer = tf.train.RMSPropOptimizer(
+      optimizer = tf.compat.v1.train.RMSPropOptimizer(
           learning_rate,
           RMSPROP_DECAY,
           momentum=RMSPROP_MOMENTUM,
-          epsilon=RMSPROP_EPSILON)
+          epsilon=RMSPROP_EPSILON)ß
   if FLAGS.use_tpu:
     optimizer = tf.compat.v1.tpu.CrossShardOptimizer(optimizer)
 
