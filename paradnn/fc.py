@@ -181,7 +181,7 @@ def model_fn(features, labels, mode, params):
   if FLAGS.use_tpu:
     optimizer = tf.compat.v1.tpu.CrossShardOptimizer(optimizer)
 
-  train_op = optimizer.minimize(loss, global_step=tf.train.get_global_step())
+  train_op = optimizer.minimize(loss, global_step=tf.compat.v1.train.get_global_step())
 
   param_stats = tf.profiler.profile(
     tf.get_default_graph(),
