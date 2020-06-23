@@ -5,48 +5,48 @@ Fully-connected models.
 '''
 
 import tensorflow as tf
-from tensorflow.contrib.tpu.python.tpu import tpu_config
-from tensorflow.contrib.tpu.python.tpu import tpu_estimator
-from tensorflow.contrib.tpu.python.tpu import tpu_optimizer
+from tensorflow.compat.v1.estimator.tpu import TPUConfig
+from tensorflow.compat.v1.estimator.tpu import TPUEstimator
+from tensorflow.compat.v1.estimator.tpu import TPUOptimizer
 import time
 import numpy as np
 import os
 
-tf.flags.DEFINE_bool("use_tpu", True, "Use TPUs or not.")
+tf.compat.v1.flags.DEFINE_bool("use_tpu", True, "Use TPUs or not.")
 # TPU only
-tf.flags.DEFINE_string(
+tf.compat.v1.flags.DEFINE_string(
     "gcp_project", default="",
     help="Project name for the Cloud TPU project. If not specified, "
           "the GCE project metadata will be used.")
-tf.flags.DEFINE_string(
+tf.compat.v1.flags.DEFINE_string(
     "tpu_zone", default="",
     help="GCE zone where the Cloud TPU is located in.")
-tf.flags.DEFINE_string(
+tf.compat.v1.flags.DEFINE_string(
     "tpu_name", default=None,
     help="Name of the Cloud TPU for Cluster Resolvers.")
 
-tf.flags.DEFINE_string("model_dir", None, "Estimator model_dir")
-tf.flags.DEFINE_integer("iterations", 100,
+tf.compat.v1.flags.DEFINE_string("model_dir", None, "Estimator model_dir")
+tf.compat.v1.flags.DEFINE_integer("iterations", 100,
                         "Number of iterations per TPU training loop.")
-tf.flags.DEFINE_integer("num_shards", 8, "Number of shards (TPU chips).")
-tf.flags.DEFINE_string("machine", 'tpu/2x2', "machine")
+tf.compat.v1.flags.DEFINE_integer("num_shards", 8, "Number of shards (TPU chips).")
+tf.compat.v1.flags.DEFINE_string("machine", 'tpu/2x2', "machine")
 
-tf.flags.DEFINE_integer("train_steps", 100, "Total number of steps.")
-tf.flags.DEFINE_integer("batch_size", 128,
+tf.compat.v1.flags.DEFINE_integer("train_steps", 100, "Total number of steps.")
+tf.compat.v1.flags.DEFINE_integer("batch_size", 128,
                         "Mini-batch size for the training.")
-tf.flags.DEFINE_string("mode", "train", "train of infer.")
-tf.flags.DEFINE_integer("warmup_steps", 300, "warmup steps")
-tf.flags.DEFINE_integer("input_size", 1000, "input_size")
-tf.flags.DEFINE_integer("output_size", 100, "output_size")
-tf.flags.DEFINE_integer("layer", 4, "number of hidden layers")
-tf.flags.DEFINE_integer("node", 1024, "number of nodes per hidden layer")
-tf.flags.DEFINE_integer("mkl_threads", 1, "Just for logging purpose.")
-tf.flags.DEFINE_integer("intra_threads", 0, "")
-tf.flags.DEFINE_integer("inter_threads", 0, "")
-tf.flags.DEFINE_string("optimizer", "rms", "Choose among rms, sgd, and momentum.")
-tf.flags.DEFINE_string("data_type", "float32", "bfloat16 is only for TPU, and float16 only for GPU with Tensor Cores.")
+tf.compat.v1.flags.DEFINE_string("mode", "train", "train of infer.")
+tf.compat.v1.flags.DEFINE_integer("warmup_steps", 300, "warmup steps")
+tf.compat.v1.flags.DEFINE_integer("input_size", 1000, "input_size")
+tf.compat.v1.flags.DEFINE_integer("output_size", 100, "output_size")
+tf.compat.v1.flags.DEFINE_integer("layer", 4, "number of hidden layers")
+tf.compat.v1.flags.DEFINE_integer("node", 1024, "number of nodes per hidden layer")
+tf.compat.v1.flags.DEFINE_integer("mkl_threads", 1, "Just for logging purpose.")
+tf.compat.v1.flags.DEFINE_integer("intra_threads", 0, "")
+tf.compat.v1.flags.DEFINE_integer("inter_threads", 0, "")
+tf.compat.v1.flags.DEFINE_string("optimizer", "rms", "Choose among rms, sgd, and momentum.")
+tf.compat.v1.flags.DEFINE_string("data_type", "float32", "bfloat16 is only for TPU, and float16 only for GPU with Tensor Cores.")
 
-FLAGS = tf.flags.FLAGS
+FLAGS = tf.compat.v1.flags.FLAGS
 
 input_size = FLAGS.input_size
 output_size = FLAGS.output_size
@@ -71,20 +71,20 @@ def get_input_fn(input_size, output_size):
   def input_fn(params):
 
     if FLAGS.data_type == 'float32':
-      tf.logging.info("Using float32.")
+      tf.compat.v1.logging.info("Using float32.")
       inputs = tf.random_uniform(
         [batch_size, input_size], minval=-0.5, maxval=0.5, dtype=tf.float32)
     elif FLAGS.data_type == 'bfloat16':
-      tf.logging.info("Using bfloat16.")
+      tf.compat.v1.logging.info("Using bfloat16.")
       inputs = tf.random_uniform(
         [batch_size, input_size], minval=-0.5, maxval=0.5, dtype=tf.bfloat16)
     elif FLAGS.data_type == 'float16':
-      tf.logging.info("Using float16.")
+      tf.compat.v1.logging.info("Using float16.")
       inputs = tf.random_uniform(
         [batch_size, input_size], minval=-0.5, maxval=0.5, dtype=tf.float16)
 
     labels = tf.random_uniform(
-        [batch_size], maxval=output_size, dtype=tf.int32) 
+        [batch_size], maxval=output_size, dtype=tf.int32)
 
     return inputs, labels
   return input_fn
@@ -119,7 +119,7 @@ def get_custom_getter():
     return inner_custom_getter_float16
   elif FLAGS.data_type == 'bfloat16':
     return inner_custom_getter_bfloat16
-  
+
 
 def model_fn(features, labels, mode, params):
   net = features
@@ -151,7 +151,7 @@ def model_fn(features, labels, mode, params):
         name='fc_' + str(layer),
         activation=None)
       net = tf.cast(net, tf.float32)
-  
+
   if mode == tf.estimator.ModeKeys.PREDICT:
     predictions = {
           'logits': net,
@@ -160,22 +160,22 @@ def model_fn(features, labels, mode, params):
           mode=mode,
           predictions=predictions,
           )
-  
+
   onehot_labels=tf.one_hot(labels, output_size)
   loss = tf.losses.softmax_cross_entropy(
       onehot_labels=onehot_labels, logits=net)
-  
+
   learning_rate = 0.1
   if opt == 'sgd':
-      tf.logging.info('Using SGD optimizer')
+      tf.compat.v1.logging.info('Using SGD optimizer')
       optimizer = tf.train.GradientDescentOptimizer(
           learning_rate=learning_rate)
   elif opt == 'momentum':
-      tf.logging.info('Using Momentum optimizer')
+      tf.compat.v1.logging.info('Using Momentum optimizer')
       optimizer = tf.train.MomentumOptimizer(
           learning_rate=learning_rate, momentum=0.9)
   elif opt == 'rms':
-      tf.logging.info('Using RMS optimizer')
+      tf.compat.v1.logging.info('Using RMS optimizer')
       optimizer = tf.train.RMSPropOptimizer(
           learning_rate,
           RMSPROP_DECAY,
@@ -214,13 +214,13 @@ def model_fn(features, labels, mode, params):
       loss=loss,
       train_op=train_op)
 
-ProfileOptionBuilder = tf.profiler.ProfileOptionBuilder
+ProfileOptionBuilder = tf.compat.v1.profiler.ProfileOptionBuilder
 def main(unused_argv):
   del unused_argv
 
-  tf.logging.set_verbosity(tf.logging.INFO)
+  tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
   print('Tensorflow version: ' + str(tf.__version__))
-  for k,v in iter(tf.app.flags.FLAGS.flag_values_dict().items()):
+  for k,v in iter(tf.compat.v1.app.flags.FLAGS.flag_values_dict().items()):
     print("***%s: %s" % (k, v))
 
   if FLAGS.use_tpu == True:
@@ -246,10 +246,10 @@ def main(unused_argv):
     tpu_grpc_url = ''
 
   if FLAGS.use_tpu == False:
-    config = tf.ConfigProto(intra_op_parallelism_threads=FLAGS.intra_threads, inter_op_parallelism_threads=FLAGS.inter_threads, \
+    config = tf.compat.v1.ConfigProto(intra_op_parallelism_threads=FLAGS.intra_threads, inter_op_parallelism_threads=FLAGS.inter_threads, \
              log_device_placement=False, allow_soft_placement=True)
   else:
-    config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=True, gpu_options=tf.GPUOptions(allow_growth=True))
+    config = tf.compat.v1.ConfigProto(allow_soft_placement=True, log_device_placement=True, gpu_options=tf.GPUOptions(allow_growth=True))
 
   run_config = tpu_config.RunConfig(
       master=tpu_grpc_url,
@@ -269,12 +269,12 @@ def main(unused_argv):
       config=run_config)
 
   if FLAGS.mode == 'train':
-    tf.logging.info('Running estimator.train()')
+    tf.compat.v1.logging.info('Running estimator.train()')
     estimator.train(input_fn=get_input_fn(input_size, output_size), max_steps=FLAGS.warmup_steps)
     start = time.time()
     estimator.train(input_fn=get_input_fn(input_size, output_size), max_steps=FLAGS.train_steps)
   else:
-    tf.logging.info('Running estimator.predict()')
+    tf.compat.v1.logging.info('Running estimator.predict()')
     estimator.train(input_fn=get_input_fn(input_size, output_size), max_steps=1)
     p = estimator.evaluate(input_fn=get_input_fn(input_size, output_size), steps=FLAGS.warmup_steps)
     start = time.time()
@@ -297,4 +297,4 @@ def main(unused_argv):
 
 
 if __name__ == "__main__":
-  tf.app.run()
+    tf.compat.v1.app.run()
