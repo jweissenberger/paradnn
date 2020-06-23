@@ -69,18 +69,18 @@ def get_input_fn(input_size, output_size):
 
     if FLAGS.data_type == 'float32':
       tf.compat.v1.logging.info("Using float32.")
-      inputs = tf.random_uniform(
+      inputs = tf.random.uniform(
         [batch_size, input_size], minval=-0.5, maxval=0.5, dtype=tf.float32)
     elif FLAGS.data_type == 'bfloat16':
       tf.compat.v1.logging.info("Using bfloat16.")
-      inputs = tf.random_uniform(
+      inputs = tf.random.uniform(
         [batch_size, input_size], minval=-0.5, maxval=0.5, dtype=tf.bfloat16)
     elif FLAGS.data_type == 'float16':
       tf.compat.v1.logging.info("Using float16.")
-      inputs = tf.random_uniform(
+      inputs = tf.random.uniform(
         [batch_size, input_size], minval=-0.5, maxval=0.5, dtype=tf.float16)
 
-    labels = tf.random_uniform(
+    labels = tf.random.uniform(
         [batch_size], maxval=output_size, dtype=tf.int32)
 
     return inputs, labels
