@@ -248,13 +248,13 @@ def main(unused_argv):
   else:
     config = tf.compat.v1.ConfigProto(allow_soft_placement=True, log_device_placement=True, gpu_options=tf.GPUOptions(allow_growth=True))
 
-  run_config = tpu_config.RunConfig(
+  run_config = tf.compat.v1.estimator.tpu.RunConfig(
       master=tpu_grpc_url,
       evaluation_master=tpu_grpc_url,
       model_dir=FLAGS.model_dir,
       save_checkpoints_secs=None,
       session_config=config,
-      tpu_config=tpu_config.TPUConfig(iterations_per_loop=FLAGS.iterations, num_shards=FLAGS.num_shards),
+      tpu_config=tf.compat.v1.estimator.tpu.TPUConfig(iterations_per_loop=FLAGS.iterations, num_shards=FLAGS.num_shards),
   )
 
   estimator = tpu_estimator.TPUEstimator(
